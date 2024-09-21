@@ -1,10 +1,14 @@
 package com.luv2code.springboot.thymeleafdemo.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luv2code.springboot.thymeleafdemo.entity.Employee;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -19,11 +23,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     public EmployeeServiceImpl() {
         restTemplate = new RestTemplate();
     }
-
-//    @Autowired
-//    public EmployeeServiceImpl(RestTemplate restTemplate) {
-//        this.restTemplate = restTemplate;
-//    }
 
     @Override
     public List<Employee> findAll() {
@@ -62,12 +61,28 @@ public class EmployeeServiceImpl implements EmployeeService {
 //        return theEmployee;
 //    }
 //
-//    @Override
-//    public Employee save(Employee theEmployee) {
-//
-//        return employeeRepository.save(theEmployee);
-//    }
-//
+    @Override
+    public Employee save(Employee theEmployee) {
+
+        // call rest api on localhost 8088
+        String url = "http://localhost:8088/api/employees";
+
+        try {
+            // serialize thEmployee to JSON
+            String employeeJson = new ObjectMapper().writeValueAsString(theEmployee);
+
+            // call rest endpoint
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<String> request = new HttpEntity<>(employeeJson, headers);
+            restTemplate.postForObject(url, request, String.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        return theEmployee;
+    }
+
 //    @Override
 //    public void deleteById(int theId) {
 //
