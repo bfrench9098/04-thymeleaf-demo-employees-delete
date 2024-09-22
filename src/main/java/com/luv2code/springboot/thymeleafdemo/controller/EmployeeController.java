@@ -12,6 +12,7 @@ import java.util.List;
 @RequestMapping("/employees")
 public class EmployeeController {
     private EmployeeService employeeService;
+    private String theMethod = "POST";
 
     public EmployeeController(EmployeeService theEmployeeService) {
         employeeService = theEmployeeService;
@@ -35,28 +36,35 @@ public class EmployeeController {
         // create model attribute
         Employee theEmployee = new Employee();
 
+        this.theMethod = "POST";
+
         theModel.addAttribute("employee", theEmployee);
+        theModel.addAttribute("method", theMethod);
 
         return "employees/employee-form";
     }
 
-//    @GetMapping("/showFormForUpdate")
-//    public String showFormForUpdate(@RequestParam("employeeId") int theId, Model theModel) {
-//        // get the employee from the service
-//        Employee theEmployee = employeeService.findById(theId);
-//
-//        // set employee in the model to prepopulate the form
-//        theModel.addAttribute("employee", theEmployee);
-//
-//        // send over to our form
-//
-//        return "employees/employee-form";
-//    }
-//
+    @GetMapping("/showFormForUpdate")
+    public String showFormForUpdate(@RequestParam("employeeId") int theId, Model theModel) {
+
+        // get the employee from the service
+        Employee theEmployee = employeeService.findById(theId);
+
+        this.theMethod = "PUT";
+
+        // set employee in the model to prepopulate the form
+        theModel.addAttribute("employee", theEmployee);
+        theModel.addAttribute("method", theMethod);
+
+        // send over to our form
+
+        return "employees/employee-form";
+    }
+
     @PostMapping("/save")
     public String saveEmployee(@ModelAttribute("employee") Employee theEmployee) {
         // save the employee
-        employeeService.save(theEmployee);
+        employeeService.save(theEmployee, this.theMethod);
 
         // use a redirect to prevent duplicate submissions
         return "redirect:/employees/list";

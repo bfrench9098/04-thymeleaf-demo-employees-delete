@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -44,25 +45,30 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employees;
     }
 
-//    @Override
-//    public Employee findById(int theId) {
-//        Optional<Employee> result = employeeRepository.findById(theId);
-//
-//        Employee theEmployee = null;
-//
-//        if (result.isPresent()) {
-//            theEmployee = result.get();
-//        }
-//        else {
-//            // we didn't find the employee
-//            throw new RuntimeException("Did not find employee id - " + theId);
-//        }
-//
-//        return theEmployee;
-//    }
-//
     @Override
-    public Employee save(Employee theEmployee) {
+    public Employee findById(int theId) {
+        //Optional<Employee> result = employeeRepository.findById(theId);
+        // call rest api on localhost 8088
+        String url = "http://localhost:8088/api/employees";
+
+        Employee theEmployee = null;
+
+        ResponseEntity<Employee> responseEntity = restTemplate.getForEntity(url + "/" + theId, Employee.class);
+
+        //if (result.isPresent()) {
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            theEmployee = responseEntity.getBody();
+        }
+        else {
+            // we didn't find the employee
+            throw new RuntimeException("Did not find employee id - " + theId);
+        }
+
+        return theEmployee;
+    }
+
+    @Override
+    public Employee save(Employee theEmployee, String theMethod) {
 
         // call rest api on localhost 8088
         String url = "http://localhost:8088/api/employees";
@@ -75,7 +81,12 @@ public class EmployeeServiceImpl implements EmployeeService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<String> request = new HttpEntity<>(employeeJson, headers);
-            restTemplate.postForObject(url, request, String.class);
+            if ( theMethod.equalsIgnoreCase("POST") ) {
+                restTemplate.postForObject(url, request, String.class);
+            } else {
+                restTemplate.put(url, request, String.class);
+            }
+
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

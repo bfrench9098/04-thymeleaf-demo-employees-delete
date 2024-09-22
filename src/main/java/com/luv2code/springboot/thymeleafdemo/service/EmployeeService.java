@@ -8,9 +8,9 @@ public interface EmployeeService {
 
     List<Employee> findAll();
 
-    //Employee findById(int theId);
+    Employee findById(int theId);
 
-    Employee save(Employee theEmployee);
+    Employee save(Employee theEmployee, String theMethod);
 
     //void deleteById(int theId);
 
