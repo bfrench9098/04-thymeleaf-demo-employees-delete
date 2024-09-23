@@ -6,10 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luv2code.springboot.thymeleafdemo.entity.Employee;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -94,11 +92,31 @@ public class EmployeeServiceImpl implements EmployeeService {
         return theEmployee;
     }
 
-//    @Override
-//    public void deleteById(int theId) {
-//
-//        employeeRepository.deleteById(theId);
-//    }
+    @Override
+    public void deleteById(int theId) {
+
+        //employeeRepository.deleteById(theId);
+        // call rest api on localhost 8088
+        String url = "http://localhost:8088/api/employees";
+
+        //Employee theEmployee = null;
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        // return errors
+        ResponseEntity<Void> resp = restTemplate.exchange(url + "/" + theId, HttpMethod.DELETE, null, Void.class);
+        //restTemplate.delete(url + "/" + theId, Employee.class);
+
+        //if (result.isPresent()) {
+        if (resp.getStatusCode().isError()) {
+//            theEmployee = responseEntity.getBody();
+//        }
+//        else {
+            // we didn't find the employee
+            throw new RuntimeException("Did not find employee id - " + theId);
+        }
+
+    }
 }
 
 
